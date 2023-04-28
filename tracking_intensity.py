@@ -148,9 +148,6 @@ def get_nuclei_intensity(inputs):
 		# store the tracks
 		tracks = tracker.tracks
 
-		# store the configuration
-		cfg = tracker.configuration
-
 	# Create a stack of tracked objects
 	labels = measure.label(mask)
 	tracked_objects = np.zeros_like(labels, dtype="uint8")
@@ -248,9 +245,9 @@ def list_images_of_point(images, point):
 
 
 if __name__ == '__main__':
-	gfp_dir = "/mnt/external.data/TowbinLab/ngerber/20200317_wBT280_wBT281_LIPSI_daf16_GFP_20C/analysis/nuclei_coordinate_test/ch1_WBT281/"
-	mCh_dir = "/mnt/external.data/TowbinLab/ngerber/20200317_wBT280_wBT281_LIPSI_daf16_GFP_20C/analysis/nuclei_coordinate_test/ch2_WBT281/"
-	mCh_mask_dir = "/mnt/external.data/TowbinLab/ngerber/20200317_wBT280_wBT281_LIPSI_daf16_GFP_20C/analysis/nuclei_coordinate_test/ch2_WBT281_mask_split_5/"
+	gfp_dir = "/mnt/external.data/TowbinLab/ngerber/20200317_wBT280_wBT281_LIPSI_daf16_GFP_20C/analysis/ch1_WBT281/"
+	mCh_dir = "/mnt/external.data/TowbinLab/ngerber/20200317_wBT280_wBT281_LIPSI_daf16_GFP_20C/analysis/ch2_WBT281/"
+	mCh_mask_dir = "/mnt/external.data/TowbinLab/ngerber/20200317_wBT280_wBT281_LIPSI_daf16_GFP_20C/analysis/ch2_WBT281_mask_stardist_cleaned/"
 	
 	output_dir = "./"
 	if not os.path.exists(output_dir):
@@ -264,16 +261,74 @@ if __name__ == '__main__':
 	images_mCh_mask = sorted([os.path.join(mCh_mask_dir, x)
 							  for x in os.listdir(mCh_mask_dir)])
 
-	unique_splits = np.unique([extract_split(x) for x in images_mCh_mask])
+	splits = [extract_split(x) for x in images_mCh_mask]
 
-	for split in unique_splits:
-		logging.info(split)
+	if (splits[0]):
+		for split in np.unique(splits):
+			logging.info(split)
 
-		output_csv = output_dir + f'nuclei_GFP_intensity_WBT281_{split}.csv'
-		
-		images_mCh_mask_split = sorted(list_images_of_point(images_mCh_mask, split))
+			output_csv = output_dir + f'nuclei_GFP_intensity_WBT281_{split}.csv'
+			
+			images_mCh_mask_split = sorted(list_images_of_point(images_mCh_mask, split))
+
+			point_range = range(0, 23)
+
+			header = ["Point"]
+			max_timepoints = 0
+			for point in point_range:
+				point = str(point)
+
+				while len(point) < 4:
+					point = "0" + point
+				point = "Point" + point
+				logging.info(point)
+				images_of_point_gfp = sorted(list_images_of_point(images_gfp, point))
+
+				nb_timepoints = len(images_of_point_gfp)
+
+				if nb_timepoints > max_timepoints:
+					max_timepoints = nb_timepoints
+
+			for time in range(max_timepoints):
+				print(time)
+				time = str(time)
+				while len(time) < 5:
+					time = "0" + time
+				time = "Time" + time
+				header.append(time)
+
+			required_list_length = len(header)
+			output_dataframe = pd.DataFrame(columns=header)
+
+			for point in point_range:
+				point = str(point)
+
+				while len(point) < 4:
+					point = "0" + point
+				point = "Point" + point
+
+				output_line = [point]
+				logging.info(point)
+				images_of_point_gfp = sorted(list_images_of_point(images_gfp, point))
+				images_of_point_mCh = sorted(list_images_of_point(images_mCh, point))
+				masks_of_point_mCh = sorted(
+					list_images_of_point(images_mCh_mask_split, point))
+				logging.info('Computing intensities')
+				mean_gfp_in_nuclei = parallel_intensity(
+					range(len(images_of_point_gfp)), images_of_point_gfp, images_of_point_mCh, masks_of_point_mCh)
+				
+				output_line.extend(mean_gfp_in_nuclei)
+
+				while len(output_line) < required_list_length:
+					output_line.append(np.nan)
+				
+				output_dataframe.loc[len(output_dataframe)] = output_line
+				output_dataframe.to_csv(output_csv, index=False)
+	else:
+		output_csv = output_dir + f'nuclei_GFP_intensity_WBT281_stardist.csv'
 
 		point_range = range(0, 23)
+		point_range = [17]
 
 		header = ["Point"]
 		max_timepoints = 0
@@ -314,7 +369,7 @@ if __name__ == '__main__':
 			images_of_point_gfp = sorted(list_images_of_point(images_gfp, point))
 			images_of_point_mCh = sorted(list_images_of_point(images_mCh, point))
 			masks_of_point_mCh = sorted(
-				list_images_of_point(images_mCh_mask_split, point))
+				list_images_of_point(images_mCh_mask, point))
 			logging.info('Computing intensities')
 			mean_gfp_in_nuclei = parallel_intensity(
 				range(len(images_of_point_gfp)), images_of_point_gfp, images_of_point_mCh, masks_of_point_mCh)

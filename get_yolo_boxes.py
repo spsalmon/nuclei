@@ -78,7 +78,7 @@ for i, image in enumerate(images_gfp):
     print(i)
     results = get_yolo_pred(image, model)
     output_mask = process_yolo_pred(results)
-
-    # ti.imwrite(os.path.join(output_dir, os.path.basename(image)), output_mask, compression="zlib")
+    
+    ti.imwrite(os.path.join(output_dir, os.path.basename(image)), output_mask, compression="zlib")
 
 print(f'time : {time.time() - start_time}')
