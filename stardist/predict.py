@@ -45,7 +45,7 @@ def list_images_of_point(images, point):
 	# Return list of image names
 	return image_names
 
-def segment_nuclei_stardist(image_path:str) -> None:
+def segment_nuclei_stardist(image_path:str, model:StarDist2D) -> None:
 	nuclei_image = imread(image_path)
 	if nuclei_image.ndim > 2:
 		# Create an empty array of the same shape as the input image for storing the binary masks of segmented nuclei
@@ -69,14 +69,14 @@ def segment_nuclei_stardist(image_path:str) -> None:
 		# Save the mask
 		imwrite(os.path.join(output_dir, os.path.basename(image_path)), labels, compression='zlib')
 
-input_dir = "/mnt/external.data/TowbinLab/ngerber/20200317_wBT280_wBT281_LIPSI_daf16_GFP_20C/analysis/ch2_WBT281/"
-output_dir = "/mnt/external.data/TowbinLab/ngerber/20200317_wBT280_wBT281_LIPSI_daf16_GFP_20C/analysis/ch2_WBT281_mask_stardist/"
+input_dir = "/mnt/external.data/TowbinLab/ngerber/20200317_wBT280_wBT281_LIPSI_daf16_GFP_20C/analysis/ch2_WBT280/"
+output_dir = "/mnt/external.data/TowbinLab/ngerber/20200317_wBT280_wBT281_LIPSI_daf16_GFP_20C/analysis/ch2_WBT280_mask_stardist/"
 
 if not os.path.exists(output_dir):
 	os.makedirs(output_dir)
 
 images_path = sorted([os.path.join(input_dir, x) for x in os.listdir(input_dir)])
-images_path = list_images_of_point(images_path, point="Point0017")
+images_path = list_images_of_point(images_path, point="Point0001")
 
 X = list(map(imread,images_path))
 n_channel = 1 if X[0].ndim == 2 else X[0].shape[-1]
@@ -88,7 +88,7 @@ if n_channel > 1:
 model = StarDist2D(None, name='stardist_200_bigger_patch', basedir='models')
 
 for image_path in tqdm(images_path):
-	segment_nuclei_stardist(image_path)
+	segment_nuclei_stardist(image_path, model)
 
 
 

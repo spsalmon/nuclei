@@ -245,9 +245,9 @@ def list_images_of_point(images, point):
 
 
 if __name__ == '__main__':
-	gfp_dir = "/mnt/external.data/TowbinLab/ngerber/20200317_wBT280_wBT281_LIPSI_daf16_GFP_20C/analysis/ch1_WBT281/"
-	mCh_dir = "/mnt/external.data/TowbinLab/ngerber/20200317_wBT280_wBT281_LIPSI_daf16_GFP_20C/analysis/ch2_WBT281/"
-	mCh_mask_dir = "/mnt/external.data/TowbinLab/ngerber/20200317_wBT280_wBT281_LIPSI_daf16_GFP_20C/analysis/ch2_WBT281_mask_stardist_cleaned/"
+	gfp_dir = "/mnt/external.data/TowbinLab/ngerber/20200317_wBT280_wBT281_LIPSI_daf16_GFP_20C/analysis/ch1_WBT280/"
+	mCh_dir = "/mnt/external.data/TowbinLab/ngerber/20200317_wBT280_wBT281_LIPSI_daf16_GFP_20C/analysis/ch2_WBT280/"
+	mCh_mask_dir = "/mnt/external.data/TowbinLab/ngerber/20200317_wBT280_wBT281_LIPSI_daf16_GFP_20C/analysis/ch2_WBT280_mask_stardist/"
 	
 	output_dir = "./"
 	if not os.path.exists(output_dir):
@@ -325,10 +325,10 @@ if __name__ == '__main__':
 				output_dataframe.loc[len(output_dataframe)] = output_line
 				output_dataframe.to_csv(output_csv, index=False)
 	else:
-		output_csv = output_dir + f'nuclei_GFP_intensity_WBT281_stardist.csv'
+		output_csv = output_dir + f'nuclei_GFP_intensity_WBT280_stardist.csv'
 
 		point_range = range(0, 23)
-		point_range = [17]
+		point_range = [1]
 
 		header = ["Point"]
 		max_timepoints = 0
